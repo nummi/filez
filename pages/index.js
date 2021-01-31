@@ -1,46 +1,58 @@
-import { useState } from 'react'
-import { useS3Upload, getImageData } from 'next-s3-upload'
+import React, { useState } from 'react'
 import Image from 'next/image'
+import { signIn, signOut, useSession } from 'next-auth/client'
+import { useS3Upload, getImageData } from 'next-s3-upload'
 
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
-  let [imageUrl, setImageUrl] = useState()
-  let [height, setHeight] = useState()
-  let [width, setWidth] = useState()
-  let { FileInput, openFileDialog, uploadToS3 } = useS3Upload()
+  const [session, loading] = useSession()
+  const [imageUrl, setImageUrl] = useState()
+  const [height, setHeight] = useState()
+  const [width, setWidth] = useState()
+  const { FileInput, openFileDialog, uploadToS3 } = useS3Upload()
 
-  let handleFileChange = async (file) => {
-    let { url } = await uploadToS3(file)
-    let { height, width } = await getImageData(file)
+  const handleFileChange = async (file) => {
+    const { url } = await uploadToS3(file)
+    const { height, width } = await getImageData(file)
     setWidth(width)
     setHeight(height)
     setImageUrl(url)
   }
 
+  if (loading) {
+    return <p>Loading...</p>
+  }
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Upload Files</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <React.Fragment>
+      {!session && <button onClick={signIn}>Sign in</button>}
+      {session && (
+        <div className={styles.container}>
+          <Head>
+            <title>Upload Files</title>
+            <link rel="icon" href="/favicon.ico" />
+          </Head>
 
-      <div>
-        <FileInput onChange={handleFileChange} />
-
-        <button onClick={openFileDialog}>Upload file</button>
-
-        {imageUrl && (
           <div>
-            <Image src={imageUrl} width={width} height={height} />
-            <div>{imageUrl}</div>
-            <div>
-              {height}x{width}
-            </div>
+            <button onClick={signOut}>Sign out</button>
+            <FileInput onChange={handleFileChange} />
+
+            <button onClick={openFileDialog}>Upload file</button>
+
+            {imageUrl && (
+              <div>
+                <Image src={imageUrl} width={width} height={height} />
+                <div>{imageUrl}</div>
+                <div>
+                  {height}x{width}
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </React.Fragment>
   )
 }
