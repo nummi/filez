@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk/global')
+import AWS from 'aws-sdk/global'
 
 import { parseDate } from '../../utils'
 
