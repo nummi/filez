@@ -9,6 +9,6 @@ export const fileSizeString = function (fileSizeInBytes) {
   return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i]
 }
 
-const parseDate = function (date) {
+export const parseDate = function (date) {
   return new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'long' }).format(date)
 }
