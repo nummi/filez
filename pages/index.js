@@ -8,12 +8,12 @@ import { fileSizeString } from '../utils'
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
-export async function getStaticProps() {
-  const url = process.env.NEXTAUTH_URL + '/api/files'
-  const response = await fetcher(url)
-  const files = response.files
-  return { props: { files, filesURL: url } }
-}
+// export async function getStaticProps() {
+//   const url = process.env.NEXTAUTH_URL + '/api/files'
+//   const response = await fetcher(url)
+//   const files = response.files
+//   return { props: { files, filesURL: url } }
+// }
 
 export default function Home(props) {
   const [imageUrl, setImageUrl] = useState()
@@ -21,24 +21,22 @@ export default function Home(props) {
   const [width, setWidth] = useState()
   const { FileInput, openFileDialog, uploadToS3 } = useS3Upload()
 
-  console.log(props.filesURL)
-
   //const { files, filesError } = useSWR(props.filesURL, fetcher, { initialData: props.files })
-  const files = props.files
+  // const files = props.files
   const filesError = false
   const [filez, setFilez] = useState([])
 
-  // React.useEffect(() => {
-  //   const go = async function () {
-  //     const response = await fetch('/api/files')
-  //     if (response.ok) {
-  //       const json = await response.json()
-  //       setFilez(json.files)
-  //     }
-  //   }
+  React.useEffect(() => {
+    const go = async function () {
+      const response = await fetch('/api/files')
+      if (response.ok) {
+        const json = await response.json()
+        setFilez(json.files)
+      }
+    }
 
-  //   go()
-  // }, [])
+    go()
+  }, [])
 
   const handleFileChange = async (file) => {
     const { url } = await uploadToS3(file)
@@ -71,12 +69,12 @@ export default function Home(props) {
         )}
 
         {filesError && <div>Failed to load files</div>}
-        {!files && <div>Loading files...</div>}
-        {files && !filesError && (
+        {!filez && <div>Loading files...</div>}
+        {filez && !filesError && (
           <div>
             <h1>Files</h1>
             <ul className="list-none p-0">
-              {files.map(function (fileObj) {
+              {filez.map(function (fileObj) {
                 return (
                   <li key={fileObj.lastModified} className="mb-8">
                     <div className="text-xl">{<a href={fileObj.url}>{fileObj.name.split('/').pop()}</a>}</div>
